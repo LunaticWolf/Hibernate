@@ -1,0 +1,86 @@
+<html>
+
+<head> <title> Customer Login Form </title></head>
+
+<script>
+
+function myFunction()
+{
+	var x =document.forms["myForm"]["customerName"].value;
+	var y = document.forms["myForm"]["customerPassword"].value;
+
+	
+
+    //Name
+
+    if(!(x.search(/[^a-zA-Z0-9]+/) === -1)) 
+    {
+    	alert("Invalid Customer Name");
+    	return false;
+    }
+
+	if(x==null || x.length > 15 || x==" ")
+	{	
+		alert("Invalid User Name");
+		return false;
+	}
+	if(y.length < 6 )
+	{
+		alert("Invalid Password Length");
+		return false;
+	}
+
+     
+
+
+
+     //E-Mail
+    var e = document.forms["myForm"]["myEmail"].value;
+    var t = new RegExp("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z" + "A-Z]{2,7}$"); 
+	if (t.test(e)) 
+	{
+   	 return true;
+	} 
+	else 
+	{
+    alert("Invalid Email Address");
+	}
+   
+
+
+
+    //Pincode
+	var p = document.forms["myForm"]["Pincode"].value;
+	var q = p.toString();
+	if(q.length != 6)
+	{
+		prompt("Invalid Pincode");
+		return false;
+    }
+
+ }
+	
+
+
+
+</script>
+
+<body>
+<form name="myForm" action="first.htm" method="GET" onSubmit="return myFunction();">
+<br>
+Customer Name: <input type="text" name="customerName" placeholder="User Name ID"/>
+<br><br>
+
+Email: <input type="text" name="myEmail" placeholder="Email"/>
+<br><br>
+
+Pincode: <input type="number" name="Pincode">
+<br><br>
+Password: &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;<input type="password" name="customerPassword" placeholder="Password"/>
+<br><br>
+<input type="submit" value="submit" />
+
+
+</form>
+</body>
+</html>

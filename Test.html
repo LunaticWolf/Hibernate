@@ -1,0 +1,101 @@
+<html> 
+	<head> <title> </title>
+	</head>
+
+
+<script type="text/javascript">
+	
+/*function myfun()
+{*/
+	//Customer Name
+	/*var x = document.forms["myForm"]["name"].value;
+   if(!(x.search(/[^a-zA-Z0-9]+/) === -1)) 
+    {
+      alert("Invalid Customer Name");
+      return false;
+    }
+
+     var y = document.forms["myForm"]["n"].value.toString();
+     if(y.length < 6)
+     {
+     	alert("Invalid");
+     	return false;
+     }*/
+
+//Mail
+/*var z =  document.forms["myForm"]["e"].value;    
+var t = new RegExp("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z" + "A-Z]{2,7}$"); 
+if(t.test(z))
+{
+	return true;
+}
+else
+{
+	alert("Invalid Mail");
+	return false;
+}*/
+
+
+
+//checkbox
+
+
+}
+
+
+/*function check()
+{
+	var a = document.forms["myForm"]["r"].value;
+     if(a==true)
+     {
+     	${myForm.r} = a;
+     }
+}
+*/
+
+     function ab(f) 
+     {
+  		if(f.c.checked == true) 
+  		{
+    			f.billingname.value = f.a.value;
+   				 f.billingcity.value = f.b.value;
+  		}
+	}
+
+
+</script>
+	<body>
+
+<form>
+Name:<input type="text" name="a">
+<br>
+City:<input type="text" name="b">
+<br>
+<input type="checkbox" name="c" onclick="ab(this.form)">
+<em>Check this box if Billing Address and Mailing Address are the same.</em>
+<P>
+<b>Billing Address</b>
+<br><br>
+Name:
+<input type="text" name="billingname">
+<br>
+City:
+<input type="text" name="billingcity">
+</form>
+
+
+		<!-- <form name="myForm" action="#" onsubmit="return myfun();">
+			Name:<input type="text" name="name">
+			<input type="checkbox" name="checkbox">
+			<br>
+			Rename: <input type="text" name="r">
+			<br>
+
+			Pincode: <input type="number" name="n">
+			<br>
+			Email: <input type="text" name="e">
+			<br>
+			<input type="submit" value="submit">
+		</form> -->
+	</body>
+	</html>
