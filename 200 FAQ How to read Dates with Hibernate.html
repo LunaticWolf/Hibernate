@@ -1,0 +1,1060 @@
+<html>
+                        <head>
+                        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+                        <title>200 FAQ How to read Dates with Hibernate</title>
+                        </head>
+                        <body>
+                        <div class="container">
+                        <div class="row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <p class="lead"><div class="asset-container">
+    <div class="asset-container__padding article-view">
+        <div class="w3c-default">
+            <p><strong>FAQ: Handling Dates with Hibernate</strong></p>
+
+<p>How can I read date strings from the command-line and store them as dates in the database?</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><strong>Answer:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>You can make use of a combination of Java's date formatting class and Hibernate annotations.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Sample output:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Student [id=50, firstName=Paul, lastName=Doe, email=paul@luv2code.com, dateOfBirth=null]<br>Student [id=51, firstName=Daffy, lastName=Duck, email=daffy@luv2code.com, dateOfBirth=null]<br>Student [id=52, firstName=Paul, lastName=Doe, email=paul@luv.com, dateOfBirth=31/12/1998]</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><strong>Development Process Overview</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>1. Alter database table for student<br>2. Add a date utils class for parsing and formatting dates<br>3. Add date field to Student class<br>4. Add toString method to Student class<br>5. Update CreateStudentDemo</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>----</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><strong>Detailed steps </strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><em>1. Alter database table for student</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>We need to alter the database table to add a new column for "date_of_birth". </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Run the following SQL in your MySQL Workbench tool.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">ALTER TABLE `hb_student_tracker`.`student` 
+ADD COLUMN `date_of_birth` DATETIME NULL AFTER `last_name`;</pre>
+
+
+
+<p>--</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><em>2. Add a date utils class for parsing and formatting dates</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>We need to add a DateUtils class to handle parsing and formatting dates. The source code is here. The class should be placed in the package: com.luv2code.hibernate.demo.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>The date formatter uses special symbols for formatting/parsing.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>- dd: day in month (number)<br>- MM: month in year (number)<br>- yyyy: year</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>See this link for details: https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">package com.luv2code.hibernate.demo;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class DateUtils {
+    
+    // The date formatter
+    // - dd:   day in month (number)
+    // - MM:   month in year (number)
+    // - yyyy: year
+    //
+    // See this link for details: https://docs.oracle.com/javase/tutorial/i18n/format/simpleDateFormat.html
+    //
+    //
+    private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    
+    // read a date string and parse/convert to a date
+    public static Date parseDate(String dateStr) throws ParseException {
+        Date theDate = formatter.parse(dateStr);
+        
+        return theDate;        
+    }
+    
+    // read a date and format/convert to a string
+    public static String formatDate(Date theDate) {
+        
+        String result = null;
+        
+        if (theDate != null) {
+            result = formatter.format(theDate);
+        }
+        
+        return result;
+    }
+}</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>---</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><em>3. Add date field to Student class</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>We need to add a date field to the Student class. We map this field to the database column, "date_of_birth". Also, we make use of the @Temporal annotation. This is a Java annotation for storing dates. </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">    @Column(name="date_of_birth")
+    @Temporal(TemporalType.DATE)    
+    private Date dateOfBirth;</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Here's the full source code.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>---</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>package com.luv2code.hibernate.demo.entity;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>import java.util.Date;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>import javax.persistence.Column;<br>import javax.persistence.Entity;<br>import javax.persistence.Id;<br>import javax.persistence.Table;<br>import javax.persistence.Temporal;<br>import javax.persistence.TemporalType;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>import com.luv2code.hibernate.demo.DateUtils;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>@Entity<br>@Table(name="student")<br>public class Student {<br> <br> @Id<br> @Column(name="id")<br> private int id;<br> <br> @Column(name="first_name")<br> private String firstName;<br> <br> @Column(name="last_name")<br> private String lastName;<br> <br> @Column(name="email")<br> private String email;<br> <br> @Column(name="date_of_birth")<br> @Temporal(TemporalType.DATE) <br> private Date dateOfBirth;<br> <br> public Student() {<br>  <br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public Student( String firstName, String lastName, String email, Date theDateOfBirth) {<br>  <br>  this.firstName = firstName;<br>  this.lastName = lastName;<br>  this.email = email;<br>  this.dateOfBirth = theDateOfBirth;<br>  <br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public int getId() {<br>  return id;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public void setId(int id) {<br>  this.id = id;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public String getFirstName() {<br>  return firstName;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public void setFirstName(String firstName) {<br>  this.firstName = firstName;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public String getLastName() {<br>  return lastName;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public void setLastName(String lastName) {<br>  this.lastName = lastName;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public String getEmail() {<br>  return email;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public void setEmail(String email) {<br>  this.email = email;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public Date getDateOfBirth() {<br>  return dateOfBirth;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> public void setDateOfBirth(Date dateOfBirth) {<br>  this.dateOfBirth = dateOfBirth;<br> }</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p> @Override<br> public String toString() {<br>  return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email<br>    + ", dateOfBirth=" + DateUtils.formatDate(dateOfBirth) + "]";<br> }<br>  <br>}</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>---</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><em>4. Add toString method to Student class</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>We will make an update to the toString method in our Student class. It will use the formatter from our DateUtils.class. This code is already included in Student.java from the previous step. I'm just highlighting it here for clarity.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">        return "Student [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+                + ", dateOfBirth=" + DateUtils.formatDate(dateOfBirth) + "]";</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Note the use of DateUtils above.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>---</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><em>5. Update CreateStudentDemo</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Now for the grand finale. In the main program, read the date as a String and parse/convert it to a date. Here's the snippet of code.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">            String theDateOfBirthStr = "31/12/1998";
+            Date theDateOfBirth = DateUtils.parseDate(theDateOfBirthStr);
+            
+            Student temoStudent = new Student("Paully", "Doe", "paul@luv.com", theDateOfBirth);</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p>Here's the full code:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<pre class="prettyprint linenums">package com.luv2code.hibernate.demo;
+
+import java.text.ParseException;
+import java.util.Date;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import com.luv2code.hibernate.demo.entity.Student;
+
+public class CreateStudentDemo {
+
+    public static void main(String[] args) {
+        
+        // create session factory
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").addAnnotatedClass(Student.class)
+                .buildSessionFactory();
+
+        // create a session
+        Session session = factory.getCurrentSession();
+
+        try {
+            // create a student object
+            System.out.println("creating a new student object ...");
+
+            String theDateOfBirthStr = "31/12/1998";
+
+            Date theDateOfBirth = DateUtils.parseDate(theDateOfBirthStr);
+
+            Student temoStudent = new Student("Paully", "Doe", "paul@luv.com", theDateOfBirth);
+
+            // start transaction
+            session.beginTransaction();
+
+            // save the student object
+            System.out.println("Saving the student ...");
+            session.save(temoStudent);
+
+            // commit transaction
+            session.getTransaction().commit();
+
+            System.out.println("Success!");
+        } catch (Exception exc) {
+            exc.printStackTrace();
+        } finally {
+            factory.close();
+        }
+    }
+    
+}</pre>
+        </div>
+    </div>
+</div>
+</p>
+                        </div>
+                        </div>
+                        </div>
+                        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+                        </body>
+                        </html>
